@@ -1,5 +1,7 @@
 package technique;
 
+import technique.lzw.LZWEncoding;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -16,12 +18,16 @@ public class Tester {
         
         // Compress the file
         String compressedPath = path + ".comp";
+        long start = System.nanoTime();
         compressor.compress(path, compressedPath);
         long compressedLength = new File(compressedPath).length();
-        
+        long compressTime = System.nanoTime() - start;
+
         // Decompress the file
         String decompressedPath = path + ".decomp";
+        start = System.nanoTime();
         compressor.decompress(compressedPath, decompressedPath);
+        long decompressTime = System.nanoTime() - start;
 
         // Get the hash of the decompressed file and compare it with the original hash
         String newHash = getMD5Checksum(decompressedPath);
@@ -35,7 +41,9 @@ public class Tester {
                 "Compressed MD5: " + newHash + "\n" +
                 "Original size: " + length + " bytes\n" +
                 "Compressed size: " + compressedLength + " bytes\n" +
-                "Compression ratio: " + new DecimalFormat("#.##").format(ratio) + "\n"
+                "Compression ratio: " + new DecimalFormat("#.##").format(ratio) + "\n" +
+                "Compression time: " + compressTime / 1e6 + " ms\n" +
+                "Decompression time: " + decompressTime / 1e6 + " ms"
         );
     }
 
@@ -65,5 +73,11 @@ public class Tester {
             result.append(Integer.toString((value & 0xff) + 0x100, 16).substring(1));
         }
         return result.toString();
+    }
+
+    public static void main(String[] args) throws Exception {
+        String path = "test/input1";
+        testFile(path, new LZWEncoding());
+        
     }
 }
