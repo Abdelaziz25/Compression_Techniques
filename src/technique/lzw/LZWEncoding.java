@@ -1,18 +1,15 @@
 package technique.lzw;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.HashMap;
 
+import technique.FileCompressor;
+import technique.Tester;
 import utils.BytesUtils;
 import utils.Bytes;
-import technique.FileCompressor;
 
-public class LZWEncoding extends FileCompressor{
+public class LZWEncoding implements FileCompressor{
+    private static final int BUFFER_SIZE = 4 * 1024;
 
     private HashMap<Bytes, Integer> initializeCompressionTable() {
         HashMap<Bytes, Integer> table = new HashMap<>();
@@ -31,9 +28,11 @@ public class LZWEncoding extends FileCompressor{
     }
 
     @Override
-    public void compress(String inputFilePath, String compressedFilePath) throws FileNotFoundException {
-        DataInputStream fileReader = new DataInputStream(new FileInputStream(inputFilePath));
-        DataOutputStream fileWriter = new DataOutputStream(new FileOutputStream(compressedFilePath));
+    public void compress(String inputFilePath, String compressedFilePath) throws IOException {
+        DataInputStream fileReader = new DataInputStream(
+                new BufferedInputStream(new FileInputStream(inputFilePath), BUFFER_SIZE));
+        DataOutputStream fileWriter = new DataOutputStream(
+                new BufferedOutputStream(new FileOutputStream(compressedFilePath), BUFFER_SIZE));
         HashMap<Bytes, Integer> table = initializeCompressionTable();
 
         int nextVal = 256;
@@ -52,19 +51,19 @@ public class LZWEncoding extends FileCompressor{
                 }
             }
             BytesUtils.writeCompressedInt(table.get(current), fileWriter);
-
-            fileReader.close();
-            fileWriter.flush();
-            fileWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        fileReader.close();
+        fileWriter.close();
     }
 
     @Override
-    public void decompress(String compressedFilePath, String outputFilePath) throws FileNotFoundException{
-        DataInputStream fileReader = new DataInputStream(new FileInputStream(compressedFilePath));
-        DataOutputStream fileWriter = new DataOutputStream(new FileOutputStream(outputFilePath));
+    public void decompress(String compressedFilePath, String outputFilePath) throws IOException {
+        DataInputStream fileReader = new DataInputStream(
+                new BufferedInputStream(new FileInputStream(compressedFilePath), BUFFER_SIZE));
+        BufferedOutputStream fileWriter = new BufferedOutputStream(new FileOutputStream(outputFilePath), BUFFER_SIZE);
 
         HashMap<Integer, Bytes> table = initializeDecompressionTable();
         int nextVal = 256;
@@ -90,14 +89,16 @@ public class LZWEncoding extends FileCompressor{
                 table.put(nextVal++, newEntry);
                 prevEntry = currentEntry;
             }
-
-            fileReader.close();
-            fileWriter.flush();
-            fileWriter.close();
         } catch (EOFException e) {
             // Do nothing
         } catch (Exception e) {
             e.printStackTrace();
         }
+        fileReader.close();
+        fileWriter.close();
+    }
+
+    public static void main(String[] args) throws Exception {
+        Tester.testFile("test/yearbook.pdf", new LZWEncoding());
     }
 }
