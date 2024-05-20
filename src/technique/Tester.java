@@ -8,21 +8,26 @@ import java.text.DecimalFormat;
 
 public class Tester {
     public static void testFile(String path, FileCompressor compressor) throws Exception {
+        // Create output directory if it doesn't exist
+        String outputPath = path.substring(0, path.lastIndexOf(File.separator) + 1) + "output";
+        File outputDir = new File(outputPath);
+        outputDir.mkdir();
+        
         String originalHash = getMD5Checksum(path);
         System.out.println("Original MD5: " + originalHash);
 
         // Get original file size
         long length = new File(path).length();
-        
+
         // Compress the file
-        String compressedPath = path + ".comp";
+        String compressedPath = outputPath + File.separator + new File(path).getName() + ".comp";
         long start = System.nanoTime();
         compressor.compress(path, compressedPath);
         long compressedLength = new File(compressedPath).length();
         long compressTime = System.nanoTime() - start;
 
         // Decompress the file
-        String decompressedPath = path + ".decomp";
+        String decompressedPath = outputPath + File.separator + new File(path).getName() + ".decomp";
         start = System.nanoTime();
         compressor.decompress(compressedPath, decompressedPath);
         long decompressTime = System.nanoTime() - start;
@@ -35,17 +40,19 @@ public class Tester {
 
         // Get the compression ratio
         double ratio = (double) compressedLength / length;
+        double spaceSaving = 1 - ratio;
         System.out.println(
                 "Compressed MD5: " + newHash + "\n" +
-                "Original size: " + length + " bytes\n" +
-                "Compressed size: " + compressedLength + " bytes\n" +
-                "Compression ratio: " + new DecimalFormat("#.##").format(ratio) + "\n" +
+                "Original size: " + formatFileSize(length) + "\n" +
+                "Compressed size: " + formatFileSize(compressedLength) + "\n" +
+                "Compression ratio: " + new DecimalFormat("#.##%").format(ratio) + "\n" +
+                "Space saving: " + new DecimalFormat("#.##%").format(spaceSaving) + "\n" +
                 "Compression time: " + compressTime / 1e6 + " ms\n" +
                 "Decompression time: " + decompressTime / 1e6 + " ms"
         );
     }
 
-    public static byte[] createChecksum(String filename) throws Exception {
+    private static byte[] createChecksum(String filename) throws Exception {
         InputStream fis =  new FileInputStream(filename);
 
         byte[] buffer = new byte[1024];
@@ -63,7 +70,7 @@ public class Tester {
         return complete.digest();
     }
 
-    public static String getMD5Checksum(String filename) throws Exception {
+    private static String getMD5Checksum(String filename) throws Exception {
         byte[] b = createChecksum(filename);
         StringBuilder result = new StringBuilder();
 
@@ -71,5 +78,15 @@ public class Tester {
             result.append(Integer.toString((value & 0xff) + 0x100, 16).substring(1));
         }
         return result.toString();
+    }
+
+    private static String formatFileSize(long size) {
+        if (size < 1024) {
+            return size + " bytes";
+        } else if (size < 1024 * 1024) {
+            return String.format("%.2f KB", size / 1024.0);
+        } else {
+            return String.format("%.2f MB", size / (1024 * 1024.0));
+        }
     }
 }
