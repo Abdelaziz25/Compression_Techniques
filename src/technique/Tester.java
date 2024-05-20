@@ -2,26 +2,34 @@ package technique;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 
 public class Tester {
-    public static void testFile(String path, FileCompressor compressor) throws Exception, IOException, ClassNotFoundException {
+    public static void testFile(String path, FileCompressor compressor) throws Exception {
         String originalHash = getMD5Checksum(path);
-        System.out.println(
-                "Original MD5: " + originalHash
-        );
+        System.out.println("Original MD5: " + originalHash);
 
+        // Get original file size
         long length = new File(path).length();
+        
+        // Compress the file
         String compressedPath = path + ".comp";
         compressor.compress(path, compressedPath);
         long compressedLength = new File(compressedPath).length();
-        String newHash = getMD5Checksum(compressedPath);
+        
+        // Decompress the file
+        String decompressedPath = path + ".decomp";
+        compressor.decompress(compressedPath, decompressedPath);
+
+        // Get the hash of the decompressed file and compare it with the original hash
+        String newHash = getMD5Checksum(decompressedPath);
         if(!originalHash.equals(newHash)){
             System.out.println("Incompatible hashes, aborting....");
         }
+
+        // Get the compression ratio
         double ratio = (double) compressedLength / length;
         System.out.println(
                 "Compressed MD5: " + newHash + "\n" +
