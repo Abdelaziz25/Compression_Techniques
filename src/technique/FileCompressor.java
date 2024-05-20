@@ -4,9 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * Abstract class for file compressors and decompressors.
+ * Interface for file compressors and decompressors.
  */
-public abstract class FileCompressor {
+public interface FileCompressor {
 
     /**
      * Compresses a file.
@@ -15,7 +15,7 @@ public abstract class FileCompressor {
      * @throws IOException If an I/O error occurs.
      * @throws FileNotFoundException If the file is not found.
      */
-    public abstract void compress(String inputFilePath, String compressedFilePath) throws IOException, FileNotFoundException;
+    void compress(String inputFilePath, String compressedFilePath) throws IOException, FileNotFoundException;
 
     /**
      * Decompresses a file.
@@ -24,5 +24,5 @@ public abstract class FileCompressor {
      * @throws IOException If an I/O error occurs.
      * @throws FileNotFoundException If the file is not found.
      */
-    public abstract void decompress(String compressedFilePath, String outputFilePath) throws IOException, FileNotFoundException;
+    void decompress(String compressedFilePath, String outputFilePath) throws IOException, FileNotFoundException;
 }
