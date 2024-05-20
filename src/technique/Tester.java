@@ -1,7 +1,5 @@
 package technique;
 
-import technique.lzw.LZWEncoding;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -73,11 +71,5 @@ public class Tester {
             result.append(Integer.toString((value & 0xff) + 0x100, 16).substring(1));
         }
         return result.toString();
-    }
-
-    public static void main(String[] args) throws Exception {
-        String path = "test/input1";
-        testFile(path, new LZWEncoding());
-        
     }
 }
