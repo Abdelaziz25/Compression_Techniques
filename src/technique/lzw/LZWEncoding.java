@@ -11,6 +11,16 @@ import utils.Bytes;
 public class LZWEncoding implements FileCompressor{
     private static final int BUFFER_SIZE = 4 * 1024;
 
+    private final int maxTableIndex;
+
+    public LZWEncoding(){
+        maxTableIndex = 16 * 1024 * 1024;
+    }
+
+    public LZWEncoding(int maxTableIndex){
+        this.maxTableIndex = maxTableIndex;
+    }
+
     private HashMap<Bytes, Integer> initializeCompressionTable() {
         HashMap<Bytes, Integer> table = new HashMap<>();
         for (int i = 0; i < 256; i++) {
@@ -44,7 +54,8 @@ public class LZWEncoding implements FileCompressor{
                 next.append((byte) b);
                 if (!table.containsKey(next)) {
                     BytesUtils.writeCompressedInt(table.get(current), fileWriter);
-                    table.put(next, nextVal++);
+                    if(nextVal < maxTableIndex)
+                        table.put(next, nextVal++);
                     current = new Bytes(new byte[] { (byte) b });
                 } else {
                     current = next;
@@ -83,10 +94,11 @@ public class LZWEncoding implements FileCompressor{
                     throw new Exception("Invalid input file");
                 }
                 fileWriter.write(currentEntry.getBytes());
-                Bytes newEntry = new Bytes(prevEntry.getBytes());
-                newEntry.append(currentEntry.get(0));
-
-                table.put(nextVal++, newEntry);
+                if(nextVal < maxTableIndex) {
+                    Bytes newEntry = new Bytes(prevEntry.getBytes());
+                    newEntry.append(currentEntry.get(0));
+                    table.put(nextVal++, newEntry);
+                }
                 prevEntry = currentEntry;
             }
         } catch (EOFException e) {
@@ -99,6 +111,6 @@ public class LZWEncoding implements FileCompressor{
     }
 
     public static void main(String[] args) throws Exception {
-        Tester.testFile("test/yearbook.pdf", new LZWEncoding());
+        Tester.testFile("test\\lecture.pdf", new LZWEncoding());
     }
 }
