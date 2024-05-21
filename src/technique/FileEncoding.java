@@ -6,7 +6,7 @@ import java.io.IOException;
 /**
  * Interface for file compressors and decompressors.
  */
-public interface FileCompressor {
+public interface FileEncoding {
 
     /**
      * Compresses a file.
