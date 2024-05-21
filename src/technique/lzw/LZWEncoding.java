@@ -3,12 +3,12 @@ package technique.lzw;
 import java.io.*;
 import java.util.HashMap;
 
-import technique.FileCompressor;
+import technique.FileEncoding;
 import technique.Tester;
 import utils.BytesUtils;
 import utils.Bytes;
 
-public class LZWEncoding implements FileCompressor{
+public class LZWEncoding implements FileEncoding {
     private static final int BUFFER_SIZE = 4 * 1024;
 
     private final int maxTableIndex;
