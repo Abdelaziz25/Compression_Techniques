@@ -1,11 +1,11 @@
 package technique.huffman;
 
-import technique.FileCompressor;
+import technique.FileEncoding;
 import technique.Tester;
 
 import java.io.IOException;
 
-public class HuffmanEncoding implements FileCompressor {
+public class HuffmanEncoding implements FileEncoding {
 
     @Override
     public void compress(String inputFilePath, String compressedFilePath) throws IOException {
