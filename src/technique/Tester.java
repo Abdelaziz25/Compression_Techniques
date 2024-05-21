@@ -7,7 +7,7 @@ import java.security.MessageDigest;
 import java.text.DecimalFormat;
 
 public class Tester {
-    public static void testFile(String path, FileCompressor compressor) throws Exception {
+    public static void testFile(String path, FileEncoding encoding) throws Exception {
         // Create output directory if it doesn't exist
         String outputPath = path.substring(0, path.lastIndexOf(File.separator) + 1) + "output";
         File outputDir = new File(outputPath);
@@ -22,14 +22,14 @@ public class Tester {
         // Compress the file
         String compressedPath = outputPath + File.separator + new File(path).getName() + ".comp";
         long start = System.nanoTime();
-        compressor.compress(path, compressedPath);
+        encoding.compress(path, compressedPath);
         long compressedLength = new File(compressedPath).length();
         long compressTime = System.nanoTime() - start;
 
         // Decompress the file
         String decompressedPath = outputPath + File.separator + new File(path).getName() + ".decomp";
         start = System.nanoTime();
-        compressor.decompress(compressedPath, decompressedPath);
+        encoding.decompress(compressedPath, decompressedPath);
         long decompressTime = System.nanoTime() - start;
 
         // Get the hash of the decompressed file and compare it with the original hash
